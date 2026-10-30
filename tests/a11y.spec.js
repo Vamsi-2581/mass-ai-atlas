@@ -5,8 +5,8 @@
    - a SERIOUS violation fails unless it is listed in KNOWN_SERIOUS below, with
      the scan and the elements it is tolerated in, and the reason;
    - moderate and minor findings are attached to the report, not failed on.
-   Default (dark) theme only; see docs/testing.md for why light mode is not
-   gated yet. */
+   Atlas views use the default dark theme; the events page is scanned in
+   both dark and light themes. See docs/testing.md. */
 const AxeBuilder = require("@axe-core/playwright").default;
 const { test, expect, DATA, waitForApp } = require("./helpers/atlas");
 
@@ -42,6 +42,8 @@ const SCANS = [
   { name: "shared shortlist", url: `./?list=${DATA[0].id},${DATA[1].id}`, include: "#shortlistModal" },
   { name: "first-visit tour", url: "./", firstVisit: true, include: "#tourCard" },
   { name: "events page", url: "./events/", events: true },
+  { name: "events page (light theme)", url: "./events/", events: true,
+    theme: "light", allowlistScan: "events page" },
 ];
 
 // For each flagged node, the `within` selector it falls under, or null. axe's
@@ -65,6 +67,11 @@ for(const scan of SCANS){
     if(scan.firstVisit) test.use({ firstVisit: true });
 
     test(`axe: ${scan.name}`, async ({ page }, testInfo) => {
+      if(scan.theme === "light"){
+        await page.addInitScript(() => {
+          try{ localStorage.setItem("toa-atlas-theme", "light"); }catch(e){}
+        });
+      }
       await page.goto(scan.url);
       if(scan.events){
         await expect(page.locator("#list .ev").first()).toBeVisible();
@@ -86,7 +93,7 @@ for(const scan of SCANS){
           testInfo.annotations.push({ type: `axe ${v.impact} (not gated)`, description: `${v.id}: ${v.help} — ${v.nodes.length} node(s)` });
           continue;
         }
-        const known = KNOWN_SERIOUS.find(k => k.scan === scan.name && k.rule === v.id);
+        const known = KNOWN_SERIOUS.find(k => k.scan === (scan.allowlistScan || scan.name) && k.rule === v.id);
         const hits = known ? await withinWhich(page, v.nodes, known.within) : v.nodes.map(() => null);
         hits.forEach(h => { if(h) usedWithin.add(`${v.id} ${h}`); });
         const unexpected = v.nodes.filter((n, i) => !hits[i]);
@@ -96,7 +103,7 @@ for(const scan of SCANS){
       for(const v of tolerated){
         testInfo.annotations.push({ type: "axe serious (allowlisted)", description: `${v.id} — ${v.nodes.length} node(s): ${v.nodes.map(n => n.target.join(" ")).join(", ")}` });
       }
-      for(const k of KNOWN_SERIOUS.filter(k => k.scan === scan.name)){
+      for(const k of KNOWN_SERIOUS.filter(k => k.scan === (scan.allowlistScan || scan.name))){
         for(const sel of k.within.filter(sel => !usedWithin.has(`${k.rule} ${sel}`))){
           testInfo.annotations.push({ type: "allowlist entry unused", description: `${k.rule} no longer occurs within "${sel}" in "${scan.name}" — remove that selector (or the whole entry) from KNOWN_SERIOUS` });
         }
