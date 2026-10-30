@@ -181,11 +181,15 @@ The first run against main @ 76cf38e failed on two real bugs, both fixed in
 
 Not gated yet:
 
-- **Light theme.** The suite scans the default dark theme. The
-  light theme had 19 serious `color-contrast` nodes on the map view and 207 in
-  the Directory (category chips, card text), plus 3 `link-in-text-block`, on the
-  baseline. Gating it now would mean allowlisting the whole theme; it belongs
-  with a contrast pass on the light palette.
+- **Light theme on atlas views.** The map, galaxy, journey and directory views,
+  entry drawer, shared shortlist, and first-visit tour are scanned in the default
+  dark theme only. On the baseline, the light theme had 19 serious
+  `color-contrast` nodes on the map and 207 in the Directory (category chips,
+  card text), plus 3 `link-in-text-block`; gating those views still needs a
+  contrast pass on the light palette.
+- **Events page:** scanned in both dark and light themes. The events page is a
+  separate, smaller surface, so its light-theme scan can gate independently of
+  the atlas views.
 
 ---
 
