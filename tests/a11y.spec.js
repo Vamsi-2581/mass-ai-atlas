@@ -20,9 +20,6 @@ const TAGS = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"];
 // its selector (or the whole entry); the report says "allowlist entry unused"
 // for each selector that no longer matches a flagged node.
 const KNOWN_SERIOUS = [
-  { scan: "events page", rule: "color-contrast", since: "2026-09-30",
-    within: ["#genLine", "#add + p"],
-    why: "The events page's grey meta text is below 4.5:1 on the dark background (color var(--faint)): the 'refreshed …' line (#genLine) and the sources/credits paragraph under 'Get your event on this list', including its links. Fix in scripts/build-events-page.js." },
   { scan: "first-visit tour", rule: "color-contrast", since: "2026-09-30",
     within: ["#tourStep"],
     why: "The tour card's '1 / 5' step counter (.tour-step) is below 4.5:1. Only this node is tolerated." },
