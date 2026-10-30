@@ -43,7 +43,7 @@ const SCANS = [
   { name: "first-visit tour", url: "./", firstVisit: true, include: "#tourCard" },
   { name: "events page", url: "./events/", events: true },
   { name: "events page (light theme)", url: "./events/", events: true,
-    theme: "light", allowlistScan: "events page" },
+    theme: "light" },
 ];
 
 // For each flagged node, the `within` selector it falls under, or null. axe's
@@ -93,7 +93,7 @@ for(const scan of SCANS){
           testInfo.annotations.push({ type: `axe ${v.impact} (not gated)`, description: `${v.id}: ${v.help} — ${v.nodes.length} node(s)` });
           continue;
         }
-        const known = KNOWN_SERIOUS.find(k => k.scan === (scan.allowlistScan || scan.name) && k.rule === v.id);
+        const known = KNOWN_SERIOUS.find(k => k.scan === scan.name && k.rule === v.id);
         const hits = known ? await withinWhich(page, v.nodes, known.within) : v.nodes.map(() => null);
         hits.forEach(h => { if(h) usedWithin.add(`${v.id} ${h}`); });
         const unexpected = v.nodes.filter((n, i) => !hits[i]);
@@ -103,7 +103,7 @@ for(const scan of SCANS){
       for(const v of tolerated){
         testInfo.annotations.push({ type: "axe serious (allowlisted)", description: `${v.id} — ${v.nodes.length} node(s): ${v.nodes.map(n => n.target.join(" ")).join(", ")}` });
       }
-      for(const k of KNOWN_SERIOUS.filter(k => k.scan === (scan.allowlistScan || scan.name))){
+      for(const k of KNOWN_SERIOUS.filter(k => k.scan === scan.name)){
         for(const sel of k.within.filter(sel => !usedWithin.has(`${k.rule} ${sel}`))){
           testInfo.annotations.push({ type: "allowlist entry unused", description: `${k.rule} no longer occurs within "${sel}" in "${scan.name}" — remove that selector (or the whole entry) from KNOWN_SERIOUS` });
         }
