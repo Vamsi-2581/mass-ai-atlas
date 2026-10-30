@@ -130,7 +130,7 @@ loader the page uses (`atlas-data.js`), exactly as
 `a11y.spec.js` runs [axe-core](https://github.com/dequelabs/axe-core) against
 WCAG 2.0/2.1 A and AA rules on: the map, galaxy, journey and directory views,
 an open entry drawer, a shared shortlist, the first-visit tour card, and the
-events page.
+events page in both dark and light themes.
 
 The gate was set from what the pristine baseline (main @ 76cf38e) actually
 produced:
